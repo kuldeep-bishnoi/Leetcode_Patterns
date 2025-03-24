@@ -220,5 +220,3 @@ The sliding window pattern is super useful because:
 1. It's much faster than checking every possible subarray or substring
 2. It's used in many real-world applications like data analysis, text processing, and network monitoring
 3. It's a favorite in coding interviews and competitions
-
-Once you master this pattern, you'll be able to solve many problems efficiently and impress your friends and teachers with your coding skills! 

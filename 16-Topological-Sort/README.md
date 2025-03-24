@@ -1,217 +1,174 @@
 # Topological Sort Pattern
 
-## Introduction
+## What is Topological Sort?
 
-Topological Sort is a linear ordering of vertices in a directed acyclic graph (DAG) such that for every directed edge (u, v), vertex u comes before vertex v in the ordering. In simpler terms, if there is a path from vertex u to vertex v, then vertex u comes before vertex v in the ordering.
+Imagine you're building a LEGO castle! You can't put the roof on before building the walls, and you can't build the walls before laying the foundation. Topological Sort is like creating a step-by-step plan to build your castle in the right order. It helps us arrange things in a sequence where each step only happens after all the steps it depends on are completed.
 
-This pattern is particularly useful for solving problems related to:
-- Scheduling tasks with dependencies
-- Course prerequisites
-- Build systems
-- Package dependencies
-- Task sequencing
-- Any problem where certain things must happen before others
+## Real-Life Examples
 
-A key insight: Topological sort is only possible if the graph has no directed cycles (i.e., it is a DAG). If a cycle exists, no valid sequencing is possible.
+1. **Building a Castle**:
+   - Foundation must be built first
+   - Then walls
+   - Then windows and doors
+   - Finally, the roof
+   - Each part depends on parts below it
 
-## How It Works
+2. **Getting Ready for School**:
+   - Wake up first
+   - Then brush teeth
+   - Then get dressed
+   - Then eat breakfast
+   - Finally, pack bag and leave
 
-There are two main algorithms for topological sorting:
+3. **Making a Sandwich**:
+   - Get bread first
+   - Then add filling
+   - Then add toppings
+   - Finally, close sandwich
+   - Each step needs previous steps done
 
-### 1. Kahn's Algorithm (BFS-based)
+## When Do We Use Topological Sort?
 
-1. Calculate the in-degree (number of incoming edges) for each vertex
-2. Identify vertices with an in-degree of 0 (no dependencies) and add them to a queue
-3. While the queue is not empty:
-   - Remove a vertex from the queue
-   - Add it to the result list
-   - Reduce the in-degree of all adjacent vertices by 1
-   - If any adjacent vertex's in-degree becomes 0, add it to the queue
-4. If all vertices are in the result list, return the list; otherwise, the graph has a cycle
+Use this technique when:
+- You have tasks with dependencies
+- You need to find a valid order
+- You have a directed graph
+- You want to detect cycles
+- You need to schedule tasks
 
-### 2. DFS-based Algorithm
+## How Does It Work?
 
-1. Initialize a boolean array to track visited vertices
-2. Initialize a stack (or list) to store the result
-3. For each unvisited vertex:
-   - Perform a DFS traversal
-   - After exploring all neighbors of a vertex, push it onto the stack
-4. The topological sort is obtained by popping the stack
+1. **Step 1**: Find tasks with no dependencies
+2. **Step 2**: Add these tasks to our order
+3. **Step 3**: Remove these tasks and their connections
+4. **Step 4**: Repeat until all tasks are done
 
-## Time and Space Complexity
+Example:
+```
+Tasks: A, B, C, D
+Dependencies:
+A → B
+A → C
+B → D
+C → D
 
-For both algorithms:
-- **Time Complexity**: O(V + E) where V is the number of vertices and E is the number of edges
-- **Space Complexity**: O(V) for storing the in-degree array, queue, and result list
+Order: A → B → C → D
+or
+Order: A → C → B → D
+```
 
-## When to Use Topological Sort
-
-Consider using topological sort when:
-1. You have a directed graph with dependencies
-2. You need to find a valid ordering that respects those dependencies
-3. You're dealing with sequential tasks where some must finish before others can start
-4. You need to detect if a valid ordering exists (cycle detection)
-
-## Common Problem Patterns
-
-The Topological Sort pattern is commonly used to solve the following types of problems:
-
-1. **Task Scheduling**: Given a set of tasks and dependencies, find a valid execution order
-2. **Course Scheduling**: Determine if a student can finish all courses given prerequisites
-3. **Build Order**: Find the build order of projects with dependencies
-4. **Package Dependencies**: Resolve package installation order based on dependencies
-5. **Cycle Detection**: Determine if a valid ordering exists or if there's a circular dependency
-6. **Alien Dictionary**: Given a sorted dictionary of an alien language, find the order of characters
-
-## Implementation in Golang
-
-Here are the implementations of both approaches in Go:
+## Simple Code Example
 
 ```go
-// Graph representation using adjacency list
-type Graph struct {
-    Vertices int
-    AdjList  [][]int
-}
-
-// Create a new graph
-func NewGraph(vertices int) *Graph {
-    adjList := make([][]int, vertices)
-    for i := range adjList {
-        adjList[i] = []int{}
-    }
-    return &Graph{
-        Vertices: vertices,
-        AdjList:  adjList,
-    }
-}
-
-// Add directed edge from u to v
-func (g *Graph) AddEdge(u, v int) {
-    g.AdjList[u] = append(g.AdjList[u], v)
-}
-
-// Kahn's Algorithm (BFS-based)
-func (g *Graph) TopologicalSortBFS() ([]int, bool) {
-    // Calculate in-degree of all vertices
-    inDegree := make([]int, g.Vertices)
-    for u := 0; u < g.Vertices; u++ {
-        for _, v := range g.AdjList[u] {
-            inDegree[v]++
-        }
+func topologicalSort(numCourses int, prerequisites [][]int) []int {
+    // Create graph and count dependencies
+    graph := make(map[int][]int)
+    inDegree := make([]int, numCourses)
+    
+    // Build graph
+    for _, pre := range prerequisites {
+        graph[pre[1]] = append(graph[pre[1]], pre[0])
+        inDegree[pre[0]]++
     }
     
-    // Create a queue and enqueue all vertices with in-degree 0
+    // Find nodes with no dependencies
     queue := []int{}
-    for i := 0; i < g.Vertices; i++ {
+    for i := 0; i < numCourses; i++ {
         if inDegree[i] == 0 {
             queue = append(queue, i)
         }
     }
     
-    // Initialize count of visited vertices
-    visitedCount := 0
-    
-    // Store topological order
-    topOrder := []int{}
-    
-    // Process until queue is empty
+    // Process nodes
+    result := []int{}
     for len(queue) > 0 {
-        // Dequeue a vertex
-        u := queue[0]
+        node := queue[0]
         queue = queue[1:]
+        result = append(result, node)
         
-        // Add it to topological order
-        topOrder = append(topOrder, u)
-        
-        // Increment count of visited vertices
-        visitedCount++
-        
-        // Reduce in-degree of adjacent vertices
-        for _, v := range g.AdjList[u] {
-            inDegree[v]--
-            // If in-degree becomes 0, add it to queue
-            if inDegree[v] == 0 {
-                queue = append(queue, v)
+        // Update dependencies
+        for _, next := range graph[node] {
+            inDegree[next]--
+            if inDegree[next] == 0 {
+                queue = append(queue, next)
             }
         }
     }
     
-    // If count of visited vertices is not equal to the number of vertices,
-    // then there is a cycle in the graph
-    if visitedCount != g.Vertices {
-        return nil, false
-    }
-    
-    return topOrder, true
-}
-
-// DFS-based topological sort
-func (g *Graph) TopologicalSortDFS() ([]int, bool) {
-    // Create a stack to store result
-    stack := []int{}
-    
-    // Mark all vertices as not visited
-    visited := make([]bool, g.Vertices)
-    
-    // To detect cycle
-    recursionStack := make([]bool, g.Vertices)
-    
-    // Call the recursive helper function for all unvisited vertices
-    for i := 0; i < g.Vertices; i++ {
-        if !visited[i] {
-            if g.topologicalSortUtil(i, visited, recursionStack, &stack) {
-                // If topologicalSortUtil returns true, there is a cycle
-                return nil, false
-            }
-        }
-    }
-    
-    // Reverse the stack to get the correct order
-    for i, j := 0, len(stack)-1; i < j; i, j = i+1, j-1 {
-        stack[i], stack[j] = stack[j], stack[i]
-    }
-    
-    return stack, true
-}
-
-// Recursive utility function for DFS-based topological sort
-func (g *Graph) topologicalSortUtil(v int, visited, recursionStack []bool, stack *[]int) bool {
-    // Mark the current node as visited and part of recursion stack
-    visited[v] = true
-    recursionStack[v] = true
-    
-    // Recur for all adjacent vertices
-    for _, u := range g.AdjList[v] {
-        // If the vertex is not visited, then call the function recursively
-        if !visited[u] {
-            if g.topologicalSortUtil(u, visited, recursionStack, stack) {
-                return true
-            }
-        } else if recursionStack[u] {
-            // If the vertex is visited and is also part of the recursion stack,
-            // then there is a cycle
-            return true
-        }
-    }
-    
-    // Remove the vertex from recursion stack
-    recursionStack[v] = false
-    
-    // Push current vertex to stack which stores the result
-    *stack = append(*stack, v)
-    
-    return false
+    return result
 }
 ```
 
-## Example Problems
+## Common Mistakes to Avoid
 
-1. **Course Schedule**: Given the total number of courses and a list of prerequisite pairs, determine if it's possible to finish all courses.
-2. **Alien Dictionary**: Given a sorted dictionary of an alien language, find the order of characters.
-3. **Minimum Height Trees**: Find the minimum height trees in a graph.
-4. **Task Scheduler**: Schedule tasks with dependencies to minimize the total time.
-5. **Build Order**: Find a valid build order for projects with dependencies.
-6. **All Ancestors of a Node in DAG**: Find all ancestors of each node in a DAG.
+1. **Cycle Detection**: Check for cycles
+2. **Dependency Count**: Update counts correctly
+3. **Queue Management**: Handle queue properly
+4. **Result Order**: Maintain correct order
 
-Each of these problems leverages the topological sort pattern to solve complex dependency-based scenarios effectively. 
+## Fun Practice Problems
+
+1. **Castle Builder**: Plan castle building steps
+2. **School Schedule**: Plan morning routine
+3. **Sandwich Maker**: Plan sandwich making
+4. **Game Levels**: Plan game level order
+5. **Story Writer**: Plan story chapter order
+
+## LeetCode Problems Using Topological Sort
+
+Here are some popular LeetCode problems that can be solved using Topological Sort:
+
+### Easy Problems
+
+1. **[#207 Course Schedule](https://leetcode.com/problems/course-schedule/)** - Check if courses can be completed.
+   - **Approach**: Use topological sort to detect cycles.
+
+2. **[#210 Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)** - Find course order.
+   - **Approach**: Use topological sort to get order.
+
+### Medium Problems
+
+1. **[#269 Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)** - Find alien language order.
+   - **Approach**: Use topological sort with graph building.
+
+2. **[#310 Minimum Height Trees](https://leetcode.com/problems/minimum-height-trees/)** - Find center nodes.
+   - **Approach**: Use topological sort with leaf removal.
+
+### Hard Problems
+
+1. **[#329 Longest Increasing Path](https://leetcode.com/problems/longest-increasing-path-in-a-matrix/)** - Find longest path.
+   - **Approach**: Use topological sort with path tracking.
+
+2. **[#1203 Sort Items by Groups](https://leetcode.com/problems/sort-items-by-groups-respecting-dependencies/)** - Sort with groups.
+   - **Approach**: Use topological sort with group handling.
+
+### Tips for Solving LeetCode Topological Sort Problems
+
+1. **Graph Building**: Build graph properly
+   - Create adjacency list
+   - Count dependencies
+   - Handle edge cases
+
+2. **Processing**: Process nodes correctly
+   - Start with no dependencies
+   - Update counts properly
+   - Handle cycles
+
+3. **Optimization**: Use efficient structures
+   - Queue for processing
+   - Map for graph
+   - Array for counts
+
+4. **Edge Cases**: Handle special cases
+   - Empty graph
+   - Single node
+   - Multiple solutions
+
+## Why Learn This Pattern?
+
+The Topological Sort pattern is super useful because:
+1. It helps solve scheduling problems
+2. It's used in build systems
+3. It helps detect cycles
+4. It's important in project planning
+5. It's a fundamental graph algorithm

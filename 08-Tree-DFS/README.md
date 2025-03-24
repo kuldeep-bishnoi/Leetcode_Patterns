@@ -1,150 +1,143 @@
-# Tree Depth First Search (DFS) Pattern
+# Tree Depth-First Search (DFS) Pattern
 
-## Introduction
+## What is Tree DFS?
 
-The Tree Depth First Search (DFS) pattern is a technique used to traverse or search tree data structures by exploring as far as possible along each branch before backtracking. Unlike Breadth First Search (BFS) which explores all nodes at the current level before moving to the next level, DFS explores a branch to its leaf before moving to the next branch.
+Imagine you're exploring a maze. DFS is like following one path as far as you can go until you hit a dead end, then going back and trying another path. It's like exploring a tree house by going all the way up one branch until you can't go further, then coming back down and trying another branch!
 
-This pattern is particularly useful for problems where you need to explore paths, find specific nodes, or check properties that involve traversing from root to leaf.
+## Real-Life Examples
 
-## How It Works
+1. **Maze Solving**: When you're trying to find your way through a maze.
+   - Go straight until you hit a wall
+   - Turn back and try another path
+   - Keep going until you find the exit
 
-The Tree DFS pattern can be implemented using three main traversal methods:
+2. **Family Tree**: When you want to find all your ancestors.
+   - Go up one branch of your family tree
+   - When you reach the top, go back down
+   - Try another branch
+   - Keep going until you've explored all branches
 
-1. **Preorder Traversal (Root → Left → Right)**
-   - Visit the current node
-   - Recursively traverse the left subtree
-   - Recursively traverse the right subtree
+3. **Book Reading**: When you're reading a book with many chapters.
+   - Read one chapter completely
+   - If there's a reference to another chapter, read that chapter
+   - Come back to the original chapter
+   - Keep going until you've read everything
 
-2. **Inorder Traversal (Left → Root → Right)**
-   - Recursively traverse the left subtree
-   - Visit the current node
-   - Recursively traverse the right subtree
+## When Do We Use Tree DFS?
 
-3. **Postorder Traversal (Left → Right → Root)**
-   - Recursively traverse the left subtree
-   - Recursively traverse the right subtree
-   - Visit the current node
+Use this technique when:
+- You need to explore all paths in a tree
+- You need to find the maximum depth of a tree
+- You need to check if a path exists
+- You need to find all paths from root to leaves
+- You need to validate a binary search tree
 
-All of these traversals can be implemented either recursively or iteratively (using a stack).
+## How Does It Work?
 
-## Time and Space Complexity
+1. **Step 1**: Start with the root node
+2. **Step 2**: Choose a direction (left or right)
+3. **Step 3**: Go as far as you can in that direction
+4. **Step 4**: When you can't go further, go back
+5. **Step 5**: Try another direction
+6. **Step 6**: Keep going until you've explored everything
 
-- **Time Complexity**: O(n) - where n is the number of nodes in the tree
-- **Space Complexity**: 
-  - Best case: O(h) where h is the height of the tree (call stack space)
-  - Worst case: O(n) for a skewed tree where h = n
-
-## When to Use Tree DFS
-
-Use the Tree DFS pattern when:
-- You need to explore all paths from root to leaf nodes
-- You need to search for a specific node or path in the tree
-- You need to check or collect information about all the tree paths
-- You need to determine properties related to tree depth or height
-- You need to validate tree structures or properties
-
-## Common Problem Patterns
-
-1. **Path Sum Problems**
-   - Find if there exists a root-to-leaf path that sums to a target
-   - Find all root-to-leaf paths that sum to a target
-   - Find paths (not necessarily root-to-leaf) that sum to a target
-   
-2. **Tree Properties Validation**
-   - Check if a binary tree is balanced
-   - Validate if a tree is a valid Binary Search Tree (BST)
-   - Find the diameter of a binary tree
-   
-3. **Tree Transformation Problems**
-   - Flatten a binary tree to a linked list
-   - Convert a binary tree to its mirror image
-   - Serialize and deserialize a binary tree
-   
-4. **Lowest Common Ancestor (LCA) Problems**
-   - Find the LCA of two nodes in a binary tree
-   - Find the LCA in a binary search tree
-
-## Implementation in Golang
+## Simple Code Example
 
 ```go
-// Binary Tree DFS traversals
-
-// Preorder Traversal (Root → Left → Right)
-func preorderTraversal(root *TreeNode) []int {
-    result := []int{}
-    preorderDFS(root, &result)
-    return result
+type TreeNode struct {
+    Val   int
+    Left  *TreeNode
+    Right *TreeNode
 }
 
-func preorderDFS(node *TreeNode, result *[]int) {
-    if node == nil {
-        return
-    }
-    
-    // Visit the current node
-    *result = append(*result, node.Val)
-    
-    // Traverse left subtree
-    preorderDFS(node.Left, result)
-    
-    // Traverse right subtree
-    preorderDFS(node.Right, result)
-}
-
-// Inorder Traversal (Left → Root → Right)
 func inorderTraversal(root *TreeNode) []int {
     result := []int{}
-    inorderDFS(root, &result)
-    return result
-}
-
-func inorderDFS(node *TreeNode, result *[]int) {
-    if node == nil {
-        return
+    
+    // Helper function to do the traversal
+    var traverse func(*TreeNode)
+    traverse = func(node *TreeNode) {
+        if node == nil {
+            return
+        }
+        
+        // First, go left
+        traverse(node.Left)
+        
+        // Then, process current node
+        result = append(result, node.Val)
+        
+        // Finally, go right
+        traverse(node.Right)
     }
     
-    // Traverse left subtree
-    inorderDFS(node.Left, result)
-    
-    // Visit the current node
-    *result = append(*result, node.Val)
-    
-    // Traverse right subtree
-    inorderDFS(node.Right, result)
-}
-
-// Postorder Traversal (Left → Right → Root)
-func postorderTraversal(root *TreeNode) []int {
-    result := []int{}
-    postorderDFS(root, &result)
+    // Start traversal from root
+    traverse(root)
     return result
-}
-
-func postorderDFS(node *TreeNode, result *[]int) {
-    if node == nil {
-        return
-    }
-    
-    // Traverse left subtree
-    postorderDFS(node.Left, result)
-    
-    // Traverse right subtree
-    postorderDFS(node.Right, result)
-    
-    // Visit the current node
-    *result = append(*result, node.Val)
 }
 ```
 
-## Example Problems
+## Common Mistakes to Avoid
 
-1. **Binary Tree Path Sum**
-2. **All Paths for a Sum**
-3. **Sum of Path Numbers**
-4. **Path With Given Sequence**
-5. **Count Paths for a Sum**
-6. **Tree Diameter**
-7. **Binary Tree Maximum Path Sum**
-8. **Validate Binary Search Tree (BST)**
+1. **Stack Overflow**: Don't forget base case (nil check)
+2. **Wrong Order**: Remember the order of traversal (pre, in, post)
+3. **Missing Path**: Make sure to explore all paths
+4. **State Management**: Keep track of visited nodes if needed
 
-Each of these problems has a dedicated solution file in this directory. 
+## Fun Practice Problems
+
+1. **Path Finder**: Find all paths from root to leaves
+2. **Depth Explorer**: Find the maximum depth of the tree
+3. **Sum Path**: Find if any path sums to a target value
+4. **Mirror Check**: Check if a tree is symmetric
+5. **BST Validator**: Check if a tree is a valid binary search tree
+
+## LeetCode Problems Using Tree DFS
+
+Here are some popular LeetCode problems that can be solved using Tree DFS:
+
+### Easy Problems
+
+1. **[#94 Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/)** - Traverse tree in inorder order.
+   - **Approach**: Use recursive DFS with left-root-right order.
+
+2. **[#100 Same Tree](https://leetcode.com/problems/same-tree/)** - Check if two trees are identical.
+   - **Approach**: Use DFS to compare nodes.
+
+### Medium Problems
+
+1. **[#98 Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)** - Check if a tree is a valid BST.
+   - **Approach**: Use DFS with min/max bounds.
+
+2. **[#236 Lowest Common Ancestor](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)** - Find the lowest common ancestor of two nodes.
+   - **Approach**: Use DFS to find paths to both nodes.
+
+3. **[#113 Path Sum II](https://leetcode.com/problems/path-sum-ii/)** - Find all paths that sum to target.
+   - **Approach**: Use DFS to track current path and sum.
+
+4. **[#129 Sum Root to Leaf Numbers](https://leetcode.com/problems/sum-root-to-leaf-numbers/)** - Sum all root-to-leaf numbers.
+   - **Approach**: Use DFS to build numbers and sum them.
+
+### Hard Problems
+
+1. **[#124 Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)** - Find maximum path sum.
+   - **Approach**: Use DFS to track local and global maximum.
+
+2. **[#297 Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)** - Convert tree to string and back.
+   - **Approach**: Use DFS to serialize and deserialize.
+
+### Tips for Solving LeetCode Tree DFS Problems
+
+1. **Traversal Order**: Choose the right order (pre, in, post)
+2. **State Tracking**: Keep track of necessary state (sum, path, etc.)
+3. **Base Cases**: Handle nil nodes and leaf nodes
+4. **Recursion**: Use helper functions for cleaner code
+5. **Global State**: Use global variables when needed
+
+## Why Learn This Pattern?
+
+The Tree DFS pattern is super useful because:
+1. It's perfect for exploring all paths in a tree
+2. It helps solve many tree-related problems
+3. It's a favorite in coding interviews
+4. It teaches important concepts about recursion
+5. It's used in many real-world applications

@@ -1,127 +1,159 @@
 # K-way Merge Pattern
 
-## Introduction
+## What is K-way Merge?
 
-The K-way Merge pattern is used to efficiently merge multiple sorted arrays, lists or portions of data. It's an extension of the classic merge operation in merge sort, but instead of merging just two sorted arrays, it handles merging K sorted arrays simultaneously. This pattern is particularly useful when dealing with large datasets that can't fit entirely in memory and are split across multiple sorted chunks or when merging data from multiple sources.
+Imagine you have K different piles of cards, and each pile is already sorted from smallest to biggest. The K-way Merge pattern is like having a special helper that can combine all these piles into one big sorted pile! It's like having a magic sorting machine that can merge many sorted lists into one perfect list.
 
-## How It Works
+## Real-Life Examples
 
-The K-way Merge pattern works as follows:
+1. **Merging Decks**: Combining many sorted card decks.
+   - Each deck is sorted
+   - Need to keep them sorted
+   - Take smallest card each time
 
-1. Take K sorted arrays/lists as input
-2. Create a min-heap (priority queue) to track the smallest elements
-3. Initially, insert the first element from each array into the heap
-4. Repeatedly:
-   - Extract the minimum element from the heap
-   - Add it to the result array
-   - Insert the next element from the same array where the min element came from
-   - Continue until all elements are processed
+2. **Class Lists**: Combining many sorted class lists.
+   - Each list is sorted by grade
+   - Need one big sorted list
+   - Take highest grade each time
 
-## Time and Space Complexity
+3. **Book Shelves**: Combining many sorted book shelves.
+   - Each shelf is sorted by title
+   - Need one big sorted shelf
+   - Take first alphabetically each time
 
-- **Time Complexity**: O(N log K) where N is the total number of elements across all arrays and K is the number of arrays. We perform N heap operations, each taking O(log K) time.
-- **Space Complexity**: O(K) for storing the heap with one element from each of the K arrays.
+## When Do We Use K-way Merge?
 
-## When to Use K-way Merge Pattern
+Use this technique when:
+- You have K sorted lists to merge
+- You need to find smallest/largest elements
+- You want to combine sorted data
+- You need to merge multiple streams
+- You want to find common elements
 
-This pattern is useful when:
+## How Does It Work?
 
-1. You need to merge multiple sorted arrays or lists
-2. Working with external sorting where data doesn't fit in memory
-3. Processing streams of sorted data from multiple sources
-4. Dealing with distributed merge operations
-5. Implementing certain algorithms like merging K sorted linked lists
+1. **Step 1**: Create a special container (heap)
+2. **Step 2**: Add first element from each list
+3. **Step 3**: Take smallest/largest element
+4. **Step 4**: Add next element from that list
+5. **Step 5**: Repeat until all lists are empty
 
-## Common Problem Patterns
+Example:
+```
+Lists: [1,4,7], [2,5,8], [3,6,9]
+1. Add 1,2,3 → Take 1
+2. Add 4,2,3 → Take 2
+3. Add 4,5,3 → Take 3
+4. Add 4,5,6 → Take 4
+And so on...
+```
 
-1. **Merge K Sorted Arrays**: Merge K sorted arrays into a single sorted array
-2. **Merge K Sorted Lists**: Merge K sorted linked lists into a single sorted list
-3. **K Pairs with Smallest Sums**: Find K pairs with the smallest sums from two arrays
-4. **Kth Smallest Element in M Sorted Arrays**: Find the Kth smallest element across multiple sorted arrays
-5. **Median of a Stream**: Find the median of a continuous stream of numbers
-6. **Find K Closest Elements**: Find the K closest elements to a given value from a sorted array
-7. **Sort a Nearly Sorted Array**: Sort an array where each element is at most K positions away from its target position
-
-## Implementation in Golang
-
-Here's how the basic K-way merge operation can be implemented in Golang using a heap (priority queue):
+## Simple Code Example
 
 ```go
-import (
-    "container/heap"
-)
-
-// Element represents an element in one of the arrays
-type Element struct {
-    Value     int // The actual value
-    ArrayIndex int // Index of the array this element belongs to
-    ElementIndex int // Index of this element in its array
-}
-
-// MinHeap implementation
-type MinHeap []Element
-
-func (h MinHeap) Len() int           { return len(h) }
-func (h MinHeap) Less(i, j int) bool { return h[i].Value < h[j].Value }
-func (h MinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *MinHeap) Push(x interface{}) {
-    *h = append(*h, x.(Element))
-}
-
-func (h *MinHeap) Pop() interface{} {
-    old := *h
-    n := len(old)
-    x := old[n-1]
-    *h = old[0 : n-1]
-    return x
-}
-
-// MergeKSortedArrays merges K sorted arrays into one sorted array
-func MergeKSortedArrays(arrays [][]int) []int {
-    result := []int{}
-    
-    // Create a min heap
-    h := &MinHeap{}
+func mergeKLists(lists []*ListNode) *ListNode {
+    // Create min heap
+    h := &ListNodeHeap{}
     heap.Init(h)
     
-    // Insert the first element from each array into the heap
-    for i, array := range arrays {
-        if len(array) > 0 {
-            heap.Push(h, Element{
-                Value:        array[0],
-                ArrayIndex:   i,
-                ElementIndex: 0,
-            })
+    // Add first node from each list
+    for _, list := range lists {
+        if list != nil {
+            heap.Push(h, list)
         }
     }
     
-    // Extract the minimum element and add the next element from the same array
+    // Create result list
+    dummy := &ListNode{}
+    curr := dummy
+    
+    // Keep merging until heap is empty
     for h.Len() > 0 {
-        // Get the minimum element
-        minElement := heap.Pop(h).(Element)
-        result = append(result, minElement.Value)
+        node := heap.Pop(h).(*ListNode)
+        curr.Next = node
+        curr = curr.Next
         
-        // If there are more elements in the same array, add the next one
-        if minElement.ElementIndex+1 < len(arrays[minElement.ArrayIndex]) {
-            heap.Push(h, Element{
-                Value:        arrays[minElement.ArrayIndex][minElement.ElementIndex+1],
-                ArrayIndex:   minElement.ArrayIndex,
-                ElementIndex: minElement.ElementIndex+1,
-            })
+        // Add next node from same list
+        if node.Next != nil {
+            heap.Push(h, node.Next)
         }
     }
     
-    return result
+    return dummy.Next
 }
 ```
 
-## Example Problems
+## Common Mistakes to Avoid
 
-1. **Merge K Sorted Arrays**: Merge K sorted arrays into a single sorted array.
-2. **Merge K Sorted Lists**: Merge K sorted linked lists into a single sorted list.
-3. **Find K Pairs with Smallest Sums**: Given two sorted arrays, find the pairs with the smallest sums.
-4. **Kth Smallest Element in Sorted Matrix**: Find the kth smallest element in a sorted matrix.
-5. **Smallest Range Covering Elements from K Lists**: Find the smallest range that includes at least one number from each of the K lists.
-6. **Find K Closest Numbers**: Find the K closest integers to a given number in a sorted array.
-7. **Stream of Medians**: Find the median of a stream of numbers. 
+1. **Heap Type**: Use min heap for ascending, max heap for descending
+2. **Empty Lists**: Handle empty lists properly
+3. **Next Node**: Always add next node from same list
+4. **Edge Cases**: Handle nil lists and single list
+
+## Fun Practice Problems
+
+1. **Deck Merger**: Merge K sorted card decks
+2. **List Combiner**: Merge K sorted class lists
+3. **Shelf Merger**: Merge K sorted book shelves
+4. **Number Merger**: Merge K sorted number lists
+5. **Stream Combiner**: Merge K sorted data streams
+
+## LeetCode Problems Using K-way Merge
+
+Here are some popular LeetCode problems that can be solved using K-way Merge:
+
+### Easy Problems
+
+1. **[#21 Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)** - Merge two lists.
+   - **Approach**: Use two pointers.
+
+2. **[#88 Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)** - Merge two arrays.
+   - **Approach**: Merge from end.
+
+### Medium Problems
+
+1. **[#23 Merge K Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)** - Merge K lists.
+   - **Approach**: Use heap.
+
+2. **[#378 Kth Smallest Element](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/)** - Find Kth smallest.
+   - **Approach**: Use heap with matrix.
+
+### Hard Problems
+
+1. **[#632 Smallest Range](https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/)** - Find smallest range.
+   - **Approach**: Use heap with range tracking.
+
+2. **[#786 K-th Smallest Prime Fraction](https://leetcode.com/problems/k-th-smallest-prime-fraction/)** - Find Kth fraction.
+   - **Approach**: Use heap with fractions.
+
+### Tips for Solving LeetCode K-way Merge Problems
+
+1. **Heap Selection**: Choose right heap type
+   - Min heap for ascending
+   - Max heap for descending
+
+2. **Node Management**: Handle nodes properly
+   - Add first node from each list
+   - Add next node after removing
+   - Update pointers correctly
+
+3. **Complexity**: Understand time complexity
+   - Building heap: O(k)
+   - Each operation: O(log k)
+   - Overall: O(n log k)
+
+4. **Optimization**: Use appropriate approach
+   - Heap for dynamic lists
+   - Two pointers for two lists
+   - Binary search for matrix
+
+## Why Learn This Pattern?
+
+The K-way Merge pattern is super useful because:
+1. It's very efficient (O(n log k) time)
+2. It's used in many real-world applications
+3. It's a favorite in coding interviews
+4. It teaches important concepts about heaps
+5. It helps solve many merging problems
+
+Once you master this pattern, you'll be able to solve many merging problems efficiently and impress your friends with your coding skills! 

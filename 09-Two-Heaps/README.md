@@ -1,101 +1,154 @@
 # Two Heaps Pattern
 
-## Introduction
+## What are Two Heaps?
 
-The Two Heaps pattern is a technique that uses two heaps—a min heap and a max heap—to efficiently solve problems that require tracking medians or finding the middle elements of a dataset. This pattern is particularly useful when you need to find the smallest element from one part of the data and the largest element from the other part.
+Imagine you have two piles of cards - one for the biggest numbers and one for the smallest numbers. The Two Heaps pattern is like having two special containers where you can quickly find the biggest and smallest numbers. It's like having two baskets: one for your biggest toys and one for your smallest toys!
 
-In this pattern, we divide elements into two parts and use:
-- A max heap to store the smaller half of the elements
-- A min heap to store the larger half of the elements
+## Real-Life Examples
 
-This arrangement allows us to efficiently find elements around the middle of a dataset, especially when data is continuously changing.
+1. **Class Grades**: When you want to track the highest and lowest scores.
+   - One pile for the highest scores
+   - One pile for the lowest scores
+   - Always know the top and bottom scores quickly
 
-## How It Works
+2. **Temperature Records**: When tracking daily temperatures.
+   - One pile for the hottest days
+   - One pile for the coldest days
+   - Always know the extreme temperatures
 
-1. **Partitioning the data**: Elements are divided into two halves, with smaller elements in the max heap and larger elements in the min heap.
-2. **Balancing**: We maintain a balance such that the size difference between the two heaps is not more than 1.
-3. **Accessing medians/middle elements**: 
-   - If both heaps have equal size, the median is the average of the top elements from both heaps.
-   - If they have unequal size, the median is the top element of the heap with more elements.
+3. **Shopping Prices**: When comparing product prices.
+   - One pile for the most expensive items
+   - One pile for the least expensive items
+   - Always know the price range quickly
 
-## Time and Space Complexity
+## When Do We Use Two Heaps?
 
-For most operations in the two heaps pattern:
-- **Time Complexity**: O(log n) for insert operations and O(1) for peek operations
-- **Space Complexity**: O(n) for storing all elements across both heaps
+Use this technique when:
+- You need to find the median of a stream of numbers
+- You need to track the highest and lowest values
+- You need to find the middle value in a stream
+- You need to balance two groups of numbers
+- You need to find sliding window medians
 
-## When to Use Two Heaps
+## How Does It Work?
 
-Use the Two Heaps pattern when:
-- You need to track the median of a dynamic data stream
-- You need to find the kth largest or smallest element
-- You need to efficiently find median ranges or central tendencies
-- You need to balance partitioning of elements in real-time
+1. **Step 1**: Create two heaps:
+   - Max Heap: stores smaller half of numbers
+   - Min Heap: stores larger half of numbers
 
-## Common Problem Patterns
+2. **Step 2**: When adding a number:
+   - If it's smaller than max heap's top, add to max heap
+   - If it's larger than min heap's top, add to min heap
+   - Keep heaps balanced (size difference ≤ 1)
 
-1. **Find the Median of a Number Stream**
-   - Maintain two heaps to keep track of the median as new numbers are added
+3. **Step 3**: To find median:
+   - If heaps are equal size: average of both tops
+   - If one heap is larger: top of larger heap
 
-2. **Sliding Window Median**
-   - Find the median for each window of size k in a given array
-
-3. **IPO (Initial Public Offering)**
-   - Maximize capital by selecting projects with maximum profit while considering available capital
-
-4. **Next Interval**
-   - Find the next interval for each interval in an array
-
-## Implementation in Golang
+## Simple Code Example
 
 ```go
-// Basic implementation of the Two Heaps pattern for finding the median of a stream
 type MedianFinder struct {
-    maxHeap *MaxHeap // Stores the smaller half of numbers
-    minHeap *MinHeap // Stores the larger half of numbers
+    maxHeap *IntHeap // stores smaller half
+    minHeap *IntHeap // stores larger half
 }
 
 func Constructor() MedianFinder {
     return MedianFinder{
-        maxHeap: &MaxHeap{},
-        minHeap: &MinHeap{},
+        maxHeap: &IntHeap{},
+        minHeap: &IntHeap{},
     }
 }
 
-func (mf *MedianFinder) AddNum(num int) {
-    // Step 1: Add the number to the appropriate heap
-    if mf.maxHeap.Len() == 0 || num <= mf.maxHeap.Peek() {
-        heap.Push(mf.maxHeap, num)
+func (this *MedianFinder) AddNum(num int) {
+    // Add to max heap if empty or number is smaller
+    if this.maxHeap.Len() == 0 || num <= (*this.maxHeap)[0] {
+        heap.Push(this.maxHeap, num)
     } else {
-        heap.Push(mf.minHeap, num)
+        heap.Push(this.minHeap, num)
     }
     
-    // Step 2: Balance the heaps
-    // If maxHeap has more than one extra element than minHeap
-    if mf.maxHeap.Len() > mf.minHeap.Len()+1 {
-        heap.Push(mf.minHeap, heap.Pop(mf.maxHeap))
-    }
-    // If minHeap has more elements than maxHeap
-    if mf.minHeap.Len() > mf.maxHeap.Len() {
-        heap.Push(mf.maxHeap, heap.Pop(mf.minHeap))
+    // Balance heaps
+    if this.maxHeap.Len() > this.minHeap.Len()+1 {
+        heap.Push(this.minHeap, heap.Pop(this.maxHeap))
+    } else if this.minHeap.Len() > this.maxHeap.Len()+1 {
+        heap.Push(this.maxHeap, heap.Pop(this.minHeap))
     }
 }
 
-func (mf *MedianFinder) FindMedian() float64 {
-    // If both heaps have the same size, return the average of their tops
-    if mf.maxHeap.Len() == mf.minHeap.Len() {
-        return float64(mf.maxHeap.Peek()+mf.minHeap.Peek()) / 2.0
+func (this *MedianFinder) FindMedian() float64 {
+    if this.maxHeap.Len() == this.minHeap.Len() {
+        return float64((*this.maxHeap)[0]+(*this.minHeap)[0]) / 2
     }
-    // Otherwise, the median is the top of maxHeap (which has one more element)
-    return float64(mf.maxHeap.Peek())
+    if this.maxHeap.Len() > this.minHeap.Len() {
+        return float64((*this.maxHeap)[0])
+    }
+    return float64((*this.minHeap)[0])
 }
 ```
 
-## Example Problems
+## Common Mistakes to Avoid
 
-1. **Find the Median of a Number Stream**
-2. **Sliding Window Median**
-3. **Maximize Capital (IPO)**
-4. **Find Right Interval**
+1. **Heap Balance**: Keep heaps balanced (size difference ≤ 1)
+2. **Wrong Heap Type**: Use max heap for smaller numbers, min heap for larger
+3. **Empty Heaps**: Handle cases when heaps are empty
+4. **Heap Operations**: Use proper heap operations (Push, Pop)
 
-Each of these problems has a dedicated solution file in this directory. 
+## Fun Practice Problems
+
+1. **Score Tracker**: Keep track of highest and lowest scores
+2. **Temperature Monitor**: Track hottest and coldest temperatures
+3. **Price Watcher**: Monitor highest and lowest prices
+4. **Number Stream**: Find median of a stream of numbers
+5. **Sliding Window**: Find median in a sliding window
+
+## LeetCode Problems Using Two Heaps
+
+Here are some popular LeetCode problems that can be solved using Two Heaps:
+
+### Easy Problems
+
+1. **[#295 Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)** - Find median of stream of numbers.
+   - **Approach**: Use two heaps to maintain smaller and larger halves.
+
+2. **[#703 Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/)** - Find kth largest element.
+   - **Approach**: Use min heap to maintain k largest elements.
+
+### Medium Problems
+
+1. **[#480 Sliding Window Median](https://leetcode.com/problems/sliding-window-median/)** - Find median in sliding window.
+   - **Approach**: Use two heaps and maintain window elements.
+
+2. **[#502 IPO](https://leetcode.com/problems/ipo/)** - Maximize capital with k projects.
+   - **Approach**: Use two heaps for available and unavailable projects.
+
+3. **[#1046 Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)** - Find last stone weight.
+   - **Approach**: Use max heap to always get heaviest stones.
+
+4. **[#973 K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/)** - Find k closest points.
+   - **Approach**: Use max heap to maintain k closest points.
+
+### Hard Problems
+
+1. **[#295 Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)** - Find median of stream.
+   - **Approach**: Use two heaps with lazy removal.
+
+2. **[#480 Sliding Window Median](https://leetcode.com/problems/sliding-window-median/)** - Find median in sliding window.
+   - **Approach**: Use two heaps with delayed removal.
+
+### Tips for Solving LeetCode Two Heaps Problems
+
+1. **Heap Selection**: Choose right heap type for each half
+2. **Balance**: Keep heaps balanced
+3. **Operations**: Use proper heap operations
+4. **Edge Cases**: Handle empty heaps and single element
+5. **Cleanup**: Remove old elements when needed
+
+## Why Learn This Pattern?
+
+The Two Heaps pattern is super useful because:
+1. It's perfect for finding medians in streams
+2. It helps track highest and lowest values efficiently
+3. It's a favorite in coding interviews
+4. It teaches important concepts about heaps
+5. It's used in many real-world applications

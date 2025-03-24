@@ -1,174 +1,158 @@
 # Dynamic Programming - 0/1 Knapsack Pattern
 
-## Introduction
+## What is 0/1 Knapsack?
 
-The 0/1 Knapsack pattern is a classic problem in dynamic programming. It addresses situations where we need to make optimal selections from a set of items, each with its own value and weight, under a constraint (such as maximum weight capacity). The "0/1" refers to the binary choice for each item - either take it (1) or leave it (0); we cannot take a fraction of an item.
+Imagine you have a magical backpack (knapsack) that can only hold a certain weight, and you have many toys with different weights and values. The 0/1 Knapsack pattern is like playing a game where you need to choose which toys to put in your backpack to get the most fun (value) without making it too heavy! You can either take a toy (1) or leave it (0), but you can't split toys in half.
 
-This pattern serves as the foundation for solving many optimization problems that involve making selections under constraints.
+## Real-Life Examples
 
-## How It Works
+1. **Toy Selection**: When packing toys for a trip.
+   - Each toy has a weight and fun value
+   - Backpack can only hold 10 pounds
+   - Need to choose toys that give most fun
 
-The 0/1 Knapsack approach typically follows these steps:
+2. **Snack Packing**: When packing snacks for school.
+   - Each snack has calories and taste value
+   - Lunch box can only hold 500 calories
+   - Need to choose snacks that taste best
 
-1. Define a state that represents a subproblem (often using indices for items and remaining capacity)
-2. Create a recurrence relation that connects subproblems
-3. Use either top-down (memoization) or bottom-up (tabulation) approach to solve the problem
-4. Track decisions to reconstruct the solution (if needed)
+3. **Game Collection**: When choosing games to bring.
+   - Each game has size and fun rating
+   - Game bag can only hold 5 games
+   - Need to choose games with highest ratings
 
-### State Definition
+## When Do We Use 0/1 Knapsack?
 
-In the classic 0/1 Knapsack problem, the state is defined by:
-- `dp[i][j]` = maximum value that can be obtained from the first `i` items with a capacity of `j`
+Use this technique when:
+- You need to make yes/no choices
+- You have a weight or size limit
+- You want to maximize value
+- You can't split items
+- You need to solve optimization problems
 
-### Recurrence Relation
+## How Does It Work?
 
-For each item, we have two choices:
-1. Skip the item: `dp[i][j] = dp[i-1][j]`
-2. Include the item (if it fits): `dp[i][j] = value[i-1] + dp[i-1][j-weight[i-1]]`
+1. **Step 1**: Create a table for possibilities
+2. **Step 2**: For each item:
+   - Try taking it (if it fits)
+   - Try leaving it
+   - Choose the better option
+3. **Step 3**: Keep track of best choices
 
-The optimal value is the maximum of these two options.
+Example:
+```
+Toys: [(2kg, $5), (3kg, $8), (4kg, $10)]
+Backpack: 5kg
 
-## Time and Space Complexity
+Table:
+Weight: 0 1 2 3 4 5
+Toy 1:  0 0 5 5 5 5
+Toy 2:  0 0 5 8 8 13
+Toy 3:  0 0 5 8 8 13
 
-- **Time Complexity**: O(N × W), where N is the number of items and W is the weight capacity
-- **Space Complexity**: O(N × W) for standard implementation, though it can be optimized to O(W) with a 1D array
+Best choice: Take Toy 2 and Toy 1 (3kg + 2kg = 5kg, $8 + $5 = $13)
+```
 
-## When to Use 0/1 Knapsack Pattern
-
-This pattern is useful when:
-
-1. You need to make a binary decision (take/leave) for each item
-2. You have a constraint (like weight capacity)
-3. You want to maximize or minimize an objective (like total value)
-4. The items cannot be split or taken more than once
-
-## Common Problem Patterns
-
-The 0/1 Knapsack pattern can be adapted to solve many problems, including:
-
-1. **Classic 0/1 Knapsack**: Maximize value under a weight constraint
-2. **Subset Sum**: Determine if a subset of elements can sum to a target
-3. **Equal Subset Sum Partition**: Split array into two equal sum subsets
-4. **Minimum Subset Sum Difference**: Partition array to minimize difference between subset sums
-5. **Count of Subset Sum**: Count the number of subsets with a given sum
-6. **Target Sum**: Assign +/- signs to numbers to achieve a target sum
-7. **Coin Change**: Count the number of ways to make change for a target amount
-
-## Implementation in Golang
-
-Here's how the basic 0/1 Knapsack problem can be implemented in Go:
+## Simple Code Example
 
 ```go
-// Recursive approach with memoization
-func knapsackRecursive(profits []int, weights []int, capacity int) int {
-    n := len(profits)
-    // Initialize memoization table with -1
-    memo := make([][]int, n)
-    for i := range memo {
-        memo[i] = make([]int, capacity+1)
-        for j := range memo[i] {
-            memo[i][j] = -1
-        }
-    }
-    return knapsackHelper(profits, weights, capacity, 0, memo)
-}
-
-func knapsackHelper(profits []int, weights []int, capacity int, currentIndex int, memo [][]int) int {
-    // Base cases
-    if capacity <= 0 || currentIndex >= len(profits) {
-        return 0
-    }
-
-    // Check if we have already solved this subproblem
-    if memo[currentIndex][capacity] != -1 {
-        return memo[currentIndex][capacity]
-    }
-
-    // Decision 1: Skip the current item
-    profit1 := knapsackHelper(profits, weights, capacity, currentIndex+1, memo)
-    
-    // Decision 2: Include the current item if it fits
-    profit2 := 0
-    if weights[currentIndex] <= capacity {
-        profit2 = profits[currentIndex] + 
-                 knapsackHelper(profits, weights, capacity-weights[currentIndex], currentIndex+1, memo)
-    }
-
-    // Take the maximum profit
-    memo[currentIndex][capacity] = max(profit1, profit2)
-    return memo[currentIndex][capacity]
-}
-
-// Bottom-up Dynamic Programming (Tabulation)
-func knapsackDP(profits []int, weights []int, capacity int) int {
-    n := len(profits)
-    if capacity <= 0 || n == 0 {
-        return 0
-    }
-
-    // Initialize DP table
+func knapsack(weights []int, values []int, capacity int) int {
+    n := len(weights)
+    // Create table for possibilities
     dp := make([][]int, n+1)
     for i := range dp {
         dp[i] = make([]int, capacity+1)
     }
-
-    // Fill the dp table
+    
+    // Fill table
     for i := 1; i <= n; i++ {
         for w := 1; w <= capacity; w++ {
-            // Skip the item
+            // Can't take this item
             dp[i][w] = dp[i-1][w]
             
-            // Take the item if it fits
+            // Can take this item
             if weights[i-1] <= w {
-                valueWithCurrent := profits[i-1] + dp[i-1][w-weights[i-1]]
-                dp[i][w] = max(dp[i][w], valueWithCurrent)
+                // Take maximum of taking or leaving
+                dp[i][w] = max(dp[i][w], 
+                             values[i-1] + dp[i-1][w-weights[i-1]])
             }
         }
     }
-
+    
     return dp[n][capacity]
-}
-
-// Space-optimized version using 1D array
-func knapsackDP1D(profits []int, weights []int, capacity int) int {
-    n := len(profits)
-    if capacity <= 0 || n == 0 {
-        return 0
-    }
-
-    // We only need a 1D array of size capacity+1
-    dp := make([]int, capacity+1)
-
-    // Initialize for the first item
-    for w := weights[0]; w <= capacity; w++ {
-        dp[w] = profits[0]
-    }
-
-    // Process all items
-    for i := 1; i < n; i++ {
-        // Process the capacity in reverse to avoid using the updated value
-        for w := capacity; w >= weights[i]; w-- {
-            dp[w] = max(dp[w], profits[i]+dp[w-weights[i]])
-        }
-    }
-
-    return dp[capacity]
-}
-
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
 }
 ```
 
-## Example Problems
+## Common Mistakes to Avoid
 
-1. **0/1 Knapsack**: Given weights and values of N items, put these items in a knapsack of capacity W to get the maximum value.
-2. **Subset Sum**: Given a set of non-negative integers, determine if there is a subset of the given set with sum equal to a given sum.
-3. **Equal Subset Sum Partition**: Partition the array into two subsets such that the sum of elements in both subsets is equal.
-4. **Minimum Subset Sum Difference**: Partition the array into two subsets such that the difference between the subset sums is minimized.
-5. **Count of Subset Sum**: Count the number of subsets with a given sum.
-6. **Target Sum**: Assign + or - signs to each element to make the sum equal to a target value.
-7. **Minimum Coin Change**: Find the minimum number of coins needed to make a given amount. 
+1. **Table Size**: Make table one size bigger
+2. **Index Offsets**: Remember array indices start at 0
+3. **Weight Check**: Always check if item fits
+4. **Value Update**: Take maximum of choices
+
+## Fun Practice Problems
+
+1. **Toy Packer**: Pack toys in backpack
+2. **Snack Selector**: Choose best snacks
+3. **Game Collector**: Select best games
+4. **Treasure Hunter**: Choose valuable items
+5. **Lunch Planner**: Pack best lunch
+
+## LeetCode Problems Using 0/1 Knapsack
+
+Here are some popular LeetCode problems that can be solved using 0/1 Knapsack:
+
+### Easy Problems
+
+1. **[#416 Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)** - Split array into equal parts.
+   - **Approach**: Use knapsack with half sum.
+
+2. **[#1049 Last Stone Weight II](https://leetcode.com/problems/last-stone-weight-ii/)** - Find minimum difference.
+   - **Approach**: Use knapsack with sum/2.
+
+### Medium Problems
+
+1. **[#474 Ones and Zeroes](https://leetcode.com/problems/ones-and-zeroes/)** - Find maximum strings.
+   - **Approach**: Use 2D knapsack.
+
+2. **[#494 Target Sum](https://leetcode.com/problems/target-sum/)** - Find ways to reach target.
+   - **Approach**: Use knapsack with sum difference.
+
+### Hard Problems
+
+1. **[#879 Profitable Schemes](https://leetcode.com/problems/profitable-schemes/)** - Find profitable combinations.
+   - **Approach**: Use 2D knapsack with profit.
+
+2. **[#956 Tallest Billboard](https://leetcode.com/problems/tallest-billboard/)** - Find tallest possible billboard.
+   - **Approach**: Use knapsack with height difference.
+
+### Tips for Solving LeetCode 0/1 Knapsack Problems
+
+1. **State Definition**: Define states clearly
+   - Current item
+   - Remaining capacity
+   - Current value
+
+2. **Transitions**: Handle transitions properly
+   - Take item
+   - Leave item
+   - Edge cases
+
+3. **Optimization**: Use space optimization
+   - 1D array for basic cases
+   - Rolling array for memory
+   - State compression
+
+4. **Initialization**: Initialize properly
+   - First row to 0
+   - First column to 0
+   - Rest to appropriate values
+
+## Why Learn This Pattern?
+
+The 0/1 Knapsack pattern is super useful because:
+1. It's used in many optimization problems
+2. It's a favorite in coding interviews
+3. It teaches important concepts about dynamic programming
+4. It helps solve many real-world problems
+5. It's a fundamental algorithm pattern

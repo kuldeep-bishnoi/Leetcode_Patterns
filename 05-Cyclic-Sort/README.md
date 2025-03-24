@@ -1,132 +1,129 @@
 # Cyclic Sort Pattern
 
-## Introduction
+## What is Cyclic Sort?
 
-The Cyclic Sort pattern is an efficient sorting technique specifically designed for problems where the input array contains numbers in a given range. This pattern leverages the fact that we know the positions where each element should be in the final sorted array.
+Imagine you have a bunch of numbered cards (1, 2, 3, etc.) that are all mixed up. Cyclic Sort is like playing a matching game where you try to put each card in its correct position. It's called "cyclic" because you keep going in circles until everything is in the right place!
 
-The main idea behind this pattern is to place each number at its correct index in the array. For example, if the input array contains numbers from 1 to N, then each number should be placed at the index that is one less than its value (since array indices start at 0).
+## Real-Life Examples
 
-## How It Works
+1. **Library Books**: When books are out of order on the shelf, you put each book in its correct numbered spot.
+   - Book 1 goes in spot 1
+   - Book 2 goes in spot 2
+   - And so on...
 
-1. Iterate through the array and check if the current element is in its correct position
-2. If the element is not in the correct position, swap it with the element at its intended position
-3. After swapping, stay at the same index (don't increment the index) and check the new element
-4. If the element is already in the correct position, move to the next element
+2. **Classroom Seats**: When students need to sit in numbered seats, they find their number and sit there.
+   - Student 1 sits in seat 1
+   - Student 2 sits in seat 2
+   - And so on...
 
-## Time and Space Complexity
+3. **Toy Box Organization**: When organizing toys by number, you put each toy in its numbered box.
+   - Toy 1 goes in box 1
+   - Toy 2 goes in box 2
+   - And so on...
 
-- **Time Complexity**: O(n) - where n is the size of the input array
-- **Space Complexity**: O(1) - since we are sorting in-place
+## When Do We Use Cyclic Sort?
 
-## When to Use Cyclic Sort
+Use this technique when:
+- You have numbers from 1 to N (where N is the length of the array)
+- You need to find missing or duplicate numbers
+- You need to sort numbers in a specific range
+- You want to solve problems with numbers in a fixed range
 
-Use the Cyclic Sort pattern when:
-- The problem involves arrays containing numbers in a given range
-- The problem asks to find the missing/duplicate/smallest number in an array
-- You need to sort the array in-place with minimal swaps
+## How Does It Work?
 
-## Common Problem Patterns
+1. **Step 1**: Start with the first number
+2. **Step 2**: If the number is not in its correct position (number ≠ position + 1):
+   - Swap it with the number that should be in its position
+   - Keep swapping until the current number is in the right place
+3. **Step 3**: Move to the next position
+4. **Step 4**: Repeat until all numbers are in their correct positions
 
-1. **Sort an Array with Numbers in Range 1 to n**
-   - Place each number at index (number - 1)
-   - After sorting, the array should have each number at its correct position
-
-2. **Find the Missing Number**
-   - After cyclic sort, the first index where the value doesn't match (index + 1) is the missing number
-   - If all elements are in their correct positions, then n is the missing number
-
-3. **Find All Missing Numbers**
-   - Similar to finding one missing number, but collect all indices where the value doesn't match
-
-4. **Find the Duplicate Number**
-   - If during swapping we find an element already at its correct position, that's the duplicate
-
-5. **Find All Duplicate Numbers**
-   - Track all elements that are already at their correct positions during the sort
-
-## Implementation in Golang
+## Simple Code Example
 
 ```go
-// Cyclic Sort for array with numbers 1 to n
 func cyclicSort(nums []int) {
     i := 0
     for i < len(nums) {
-        // Correct position for the current number
-        correctPos := nums[i] - 1
-        
-        // If the number is not at its correct position, swap
-        if nums[i] != nums[correctPos] {
-            nums[i], nums[correctPos] = nums[correctPos], nums[i]
+        // If number is not in its correct position
+        if nums[i] != i+1 {
+            // Swap with the number that should be in this position
+            correct := nums[i] - 1
+            nums[i], nums[correct] = nums[correct], nums[i]
         } else {
-            // If the number is already at the correct position, move to the next element
+            // Move to next position
             i++
         }
     }
-}
-
-// Find the missing number in an array containing n distinct numbers in the range [0, n]
-func findMissingNumber(nums []int) int {
-    i, n := 0, len(nums)
-    
-    // Cyclic sort (note that array contains 0 to n, with one number missing)
-    for i < n {
-        // If the current number is less than n and not at its correct position
-        if nums[i] < n && nums[i] != i {
-            // Swap with the correct position
-            nums[i], nums[nums[i]] = nums[nums[i]], nums[i]
-        } else {
-            // If the number is already at the correct position or is equal to n, move to the next element
-            i++
-        }
-    }
-    
-    // Find the first missing number
-    for i := 0; i < n; i++ {
-        if nums[i] != i {
-            return i
-        }
-    }
-    
-    // If all numbers from 0 to n-1 are present, the missing number is n
-    return n
-}
-
-// Find all missing numbers in an array containing numbers from 1 to n
-func findAllMissingNumbers(nums []int) []int {
-    i := 0
-    for i < len(nums) {
-        // Correct position for the current number
-        correctPos := nums[i] - 1
-        
-        // If the number is not at its correct position, swap
-        if nums[i] != nums[correctPos] {
-            nums[i], nums[correctPos] = nums[correctPos], nums[i]
-        } else {
-            // If the number is already at the correct position, move to the next element
-            i++
-        }
-    }
-    
-    missingNumbers := []int{}
-    for i := 0; i < len(nums); i++ {
-        if nums[i] != i + 1 {
-            missingNumbers = append(missingNumbers, i + 1)
-        }
-    }
-    
-    return missingNumbers
 }
 ```
 
-## Example Problems
+## Common Mistakes to Avoid
 
-1. **Cyclic Sort**
-2. **Find the Missing Number**
-3. **Find All Missing Numbers**
-4. **Find the Duplicate Number**
-5. **Find All Duplicates**
-6. **Find the Corrupt Pair**
-7. **Find the Smallest Missing Positive Number**
-8. **Find the First K Missing Positive Numbers**
+1. **Off-by-one errors**: Remember that position 0 should have number 1
+2. **Infinite loops**: Make sure you're moving to the next position when needed
+3. **Array bounds**: Check that you're not accessing positions beyond the array
 
-Each of these problems has a dedicated solution file in this directory. 
+## Fun Practice Problems
+
+1. **Missing Number Game**: Find which number is missing from 1 to N
+2. **Duplicate Finder**: Find which number appears twice in 1 to N
+3. **First Missing Positive**: Find the first positive number that's missing
+4. **Find All Duplicates**: Find all numbers that appear twice
+5. **Find All Missing**: Find all numbers that are missing from 1 to N
+
+## LeetCode Problems Using Cyclic Sort
+
+Here are some popular LeetCode problems that can be solved using Cyclic Sort:
+
+### Easy Problems
+
+1. **[#268 Missing Number](https://leetcode.com/problems/missing-number/)** - Find the missing number in an array of numbers from 0 to n.
+   - **Approach**: Use cyclic sort and find the first number not in its correct position.
+
+2. **[#448 Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)** - Find all numbers missing from 1 to n.
+   - **Approach**: Use cyclic sort and check which positions don't have correct numbers.
+
+3. **[#645 Set Mismatch](https://leetcode.com/problems/set-mismatch/)** - Find the duplicate and missing number.
+   - **Approach**: Use cyclic sort to find both the duplicate and missing numbers.
+
+### Medium Problems
+
+1. **[#41 First Missing Positive](https://leetcode.com/problems/first-missing-positive/)** - Find the first missing positive integer.
+   - **Approach**: Use cyclic sort ignoring negative numbers and numbers larger than array length.
+
+2. **[#442 Find All Duplicates in an Array](https://leetcode.com/problems/find-all-duplicates-in-an-array/)** - Find all numbers that appear twice.
+   - **Approach**: Use cyclic sort and find numbers that don't match their positions.
+
+3. **[#287 Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)** - Find the duplicate number in an array of n+1 integers.
+   - **Approach**: Use cyclic sort or Floyd's cycle detection algorithm.
+
+4. **[#645 Set Mismatch](https://leetcode.com/problems/set-mismatch/)** - Find the duplicate and missing number.
+   - **Approach**: Use cyclic sort to find both numbers.
+
+### Hard Problems
+
+1. **[#41 First Missing Positive](https://leetcode.com/problems/first-missing-positive/)** - Find the first missing positive integer.
+   - **Approach**: Use cyclic sort with special handling for out-of-range numbers.
+
+2. **[#765 Couples Holding Hands](https://leetcode.com/problems/couples-holding-hands/)** - Arrange couples to sit together.
+   - **Approach**: Use cyclic sort to arrange couples in correct positions.
+
+3. **[#41 First Missing Positive](https://leetcode.com/problems/first-missing-positive/)** - Find the first missing positive integer.
+   - **Approach**: Use cyclic sort with special handling for out-of-range numbers.
+
+### Tips for Solving LeetCode Cyclic Sort Problems
+
+1. **Range Check**: Always verify if numbers are within valid range
+2. **Position Check**: Make sure to check if number matches its position
+3. **Swap Logic**: Be careful with swap operations to avoid infinite loops
+4. **Edge Cases**: Handle special cases like negative numbers or numbers larger than array length
+5. **Optimization**: Look for ways to reduce number of swaps
+
+## Why Learn This Pattern?
+
+The Cyclic Sort pattern is super useful because:
+1. It's perfect for sorting numbers in a specific range (1 to N)
+2. It helps find missing or duplicate numbers efficiently
+3. It's a favorite in coding interviews
+4. It teaches important concepts about array manipulation and sorting
+5. It's space-efficient (uses O(1) extra space)
